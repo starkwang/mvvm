@@ -4,8 +4,21 @@
     <title></title>
 </head>
 <body>
-    <div id="hello">
-        <p j-model="msg"></p>
+    <div id="demo1">
+        <p j-model="msg1"></p>
+        <div>
+            <p j-model="msg2"></p>
+            <div>
+                <p j-model="msg3"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="demo2">
+        <div j-for="item in items">
+            <p j-model="item.name"></p>
+            <p j-model="item.name"></p>
+        </div>
     </div>
 </body>
 <script type="text/javascript" src="./mvvm.js"></script>

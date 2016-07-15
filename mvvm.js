@@ -1,32 +1,79 @@
 var J = function(options) {
     var selector = options.ele;
     var data = options.data;
-
-    var targetScope = document.querySelectorAll(selector)[0];
-
-    var targetElement1 = targetScope.childNodes[1]; //p节点
-    var modelName = targetElement1.getAttribute("j-model"); //属性名
-
-    return new Proxy(data, {
-        get: function(target, property) {
-            console.log("get", target, property);
-            return target[property];
-        },
-        set: function(target, key, value) {
-            console.log(target, key, value);
-            if (key == modelName) {
-                targetElement1.innerHTML = value;
-                target[key] = value;
-            }
-        }
-    })
+    var rootEle = document.querySelector(selector);
+    bindData(rootEle, data);
 }
 
+function bindData(ele, data) {
+    var forName = ele.getAttribute('j-for');
+    if (forName) {
+        
+    }
 
-var model = new J({
-    ele: "#hello",
+    //绑定对象
+    var modelName = ele.getAttribute('j-model');
+    if (modelName && data[modelName]) {
+        var initData = data[modelName];
+        var callback = (function(ele) {
+            return function(value) {
+                ele.innerHTML = value;
+            }
+        })(ele);
+        Object.defineProperty(data, modelName, {
+            set: callback,
+            get: function() {
+                return this[modelName];
+            },
+            enumerable: true,
+            configurable: true
+        })
+        ele.innerHTML = initData;
+    }
+    //递归
+    var childNodes = getChildNodes(ele);
+    if (childNodes.length == 0) {
+        return;
+    }
+    for (var i = 0; i < childNodes.length; i++) {
+        bindData(childNodes[i], data);
+    }
+}
+
+function getChildNodes(ele) {
+    var arr = ele.childNodes;
+    var result = [];
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].nodeName == "#text") continue;
+        result.push(arr[i]);
+    }
+    return result;
+}
+
+var data1 = {
+    msg1: "I'm msg1",
+    msg2: "I'm msg2",
+    msg3: "I'm msg3"
+}
+new J({
+    ele: "#demo1",
+    data: data1
+})
+
+
+var data2 = [{
+    name: 'stark',
+    age: '21'
+}, {
+    name: 'sherry',
+    age: '20'
+}, {
+    name: 'tony',
+    age: '23'
+}]
+new J({
+    ele: "#demo2",
     data: {
-        msg: "fsafsafs",
-        msg2: [1, 2, 3, 4, 5]
+        items: data2
     }
 })
